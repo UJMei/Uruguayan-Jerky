@@ -130,6 +130,16 @@
     pointer-events:none;z-index:200;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .content-section{
+    background:rgba(243,234,217,.05);border:1px solid var(--hairline-dark);
+    border-radius:8px;padding:22px;margin-bottom:22px;
+  }
+  .content-section h3{font-size:1.1rem;margin-bottom:16px;color:var(--gold-bright);}
+  .content-section .form-field label{color:var(--parchment-2);}
+  .content-section .form-field input, .content-section .form-field textarea{
+    background:#fff;
+  }
 </style>
 </head>
 <body>
@@ -157,6 +167,8 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="productos">Productos</button>
       <button class="tab-btn" data-tab="descuentos">Códigos de descuento</button>
+      <button class="tab-btn" data-tab="resenas">Reseñas</button>
+      <button class="tab-btn" data-tab="contenido">Contenido del sitio</button>
     </div>
 
     <div class="panel active" id="panel-productos">
@@ -167,6 +179,83 @@
     <div class="panel" id="panel-descuentos">
       <button class="add-btn-main" id="addDiscountBtn">+ Agregar código</button>
       <div id="discountList"></div>
+    </div>
+
+    <div class="panel" id="panel-resenas">
+      <div id="reviewsAdminList"></div>
+    </div>
+
+    <div class="panel" id="panel-contenido">
+      <div class="content-section">
+        <h3>Textos de la web</h3>
+        <div class="form-field">
+          <label>Texto principal (debajo del logo, en la portada)</label>
+          <textarea id="ctHeroLead"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Título de la sección "Nutrición"</label>
+          <input type="text" id="ctNutritionTitle">
+        </div>
+        <div class="form-field">
+          <label>Texto de macronutrientes</label>
+          <textarea id="ctMacros"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Texto de "por qué es el mejor snack"</label>
+          <textarea id="ctWhyBest"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Texto arriba de los productos</label>
+          <textarea id="ctProductsIntro"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Aviso de las 72hs (el recuadro destacado)</label>
+          <textarea id="ctLeadNotice"></textarea>
+        </div>
+        <button class="add-btn-main" id="saveTextsBtn">Guardar textos</button>
+      </div>
+
+      <div class="content-section">
+        <h3>Contacto</h3>
+        <div class="form-field">
+          <label>Número de WhatsApp (con código de país, sin espacios ni +)</label>
+          <input type="text" id="ctWhatsapp" placeholder="Ej: 59894310693">
+        </div>
+        <div class="form-field">
+          <label>Usuario de Instagram (sin @)</label>
+          <input type="text" id="ctInstagram" placeholder="Ej: uruguayanjerky">
+        </div>
+        <button class="add-btn-main" id="saveContactBtn">Guardar contacto</button>
+      </div>
+
+      <div class="content-section">
+        <h3>Datos para transferencia bancaria</h3>
+        <div class="form-field">
+          <label>Plataforma</label>
+          <input type="text" id="ctBankPlataforma">
+        </div>
+        <div class="form-field">
+          <label>Titular</label>
+          <input type="text" id="ctBankTitular">
+        </div>
+        <div class="form-field">
+          <label>N° de cuenta</label>
+          <input type="text" id="ctBankNumero">
+        </div>
+        <button class="add-btn-main" id="saveBankBtn">Guardar datos bancarios</button>
+      </div>
+
+      <div class="content-section">
+        <h3>Preguntas frecuentes</h3>
+        <button class="add-btn-main" id="addFaqBtn">+ Agregar pregunta</button>
+        <div id="faqAdminList"></div>
+      </div>
+
+      <div class="content-section">
+        <h3>Zonas de envío</h3>
+        <button class="add-btn-main" id="addZoneBtn">+ Agregar zona</button>
+        <div id="zoneAdminList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -237,6 +326,54 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Modal: pregunta frecuente -->
+<div class="modal-overlay" id="faqModal">
+  <div class="modal-box">
+    <h2 id="faqModalTitle">Agregar pregunta</h2>
+    <input type="hidden" id="faqIndex">
+    <div class="form-field">
+      <label>Pregunta</label>
+      <input type="text" id="faqQuestion" placeholder="Ej: ¿Cómo se conserva el jerky?">
+    </div>
+    <div class="form-field">
+      <label>Respuesta</label>
+      <textarea id="faqAnswer" placeholder="Escribí la respuesta"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="cancelFaqBtn">Cancelar</button>
+      <button class="btn-save" id="saveFaqBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: zona de envío -->
+<div class="modal-overlay" id="zoneModal">
+  <div class="modal-box">
+    <h2 id="zoneModalTitle">Agregar zona</h2>
+    <input type="hidden" id="zoneOriginalKey">
+    <div class="form-field">
+      <label>Nombre de la zona</label>
+      <input type="text" id="zoneLabel" placeholder="Ej: Zona 1">
+    </div>
+    <div class="form-field">
+      <label>Costo de envío ($U)</label>
+      <input type="number" id="zoneCost" placeholder="Ej: 180">
+    </div>
+    <div class="form-field">
+      <label>Envío gratis a partir de ($U)</label>
+      <input type="number" id="zoneFreeFrom" placeholder="Ej: 1000">
+    </div>
+    <div class="form-field">
+      <label>Barrios (separados por coma)</label>
+      <textarea id="zoneNeighborhoods" placeholder="Ej: Pocitos, Punta Carretas, Centro"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="cancelZoneBtn">Cancelar</button>
+      <button class="btn-save" id="saveZoneBtn">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 let ADMIN_PASSWORD_CACHE = '';
@@ -320,19 +457,271 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 });
 
 // ---- LOAD DATA ----
+let siteContent = {};
+let reviews = [];
+
 async function loadAll(){
   try{
-    const [pRes, dRes] = await Promise.all([
+    const [pRes, dRes, cRes, rRes] = await Promise.all([
       fetch('/.netlify/functions/products-get'),
-      fetch('/.netlify/functions/discounts-get')
+      fetch('/.netlify/functions/discounts-get'),
+      fetch('/.netlify/functions/site-content-get'),
+      fetch('/.netlify/functions/reviews-get')
     ]);
     products = await pRes.json();
     discounts = await dRes.json();
+    siteContent = await cRes.json();
+    reviews = await rRes.json();
     renderProductList();
     renderDiscountList();
+    fillContentForm();
+    renderFaqAdminList();
+    renderZoneAdminList();
+    renderReviewsAdminList();
   } catch(err){
     showToast('No se pudieron cargar los datos', true);
   }
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderReviewsAdminList(){
+  const el = document.getElementById('reviewsAdminList');
+  if(reviews.length === 0){
+    el.innerHTML = '<div class="empty-state">Todavía no hay reseñas de clientes.</div>';
+    return;
+  }
+  el.innerHTML = reviews.map(r => {
+    const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    const date = new Date(r.date).toLocaleDateString('es-UY');
+    return `
+      <div class="item-card">
+        <div class="info">
+          <div class="name">${escapeHtml(r.name)} — <span style="color:var(--gold);">${stars}</span></div>
+          <div class="meta">${date} · ${escapeHtml(r.comment)}</div>
+        </div>
+        <div class="actions">
+          <button class="btn-delete" data-id="${r.id}">Eliminar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  el.querySelectorAll('.btn-delete').forEach(b=>b.addEventListener('click', ()=>deleteReview(b.dataset.id)));
+}
+
+async function deleteReview(id){
+  if(!confirm('¿Eliminar esta reseña?')) return;
+  try{
+    const res = await apiFetch('/.netlify/functions/reviews-delete', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id })
+    });
+    if(!res.ok) throw new Error();
+    reviews = reviews.filter(r => r.id !== id);
+    renderReviewsAdminList();
+    showToast('Reseña eliminada');
+  } catch(err){
+    showToast('No se pudo eliminar', true);
+  }
+}
+
+function fillContentForm(){
+  document.getElementById('ctHeroLead').value = siteContent.heroLead || '';
+  document.getElementById('ctNutritionTitle').value = siteContent.nutritionTitle || '';
+  document.getElementById('ctMacros').value = siteContent.macrosText || '';
+  document.getElementById('ctWhyBest').value = siteContent.whyBestText || '';
+  document.getElementById('ctProductsIntro').value = siteContent.productsIntro || '';
+  document.getElementById('ctLeadNotice').value = siteContent.leadNotice || '';
+  document.getElementById('ctWhatsapp').value = siteContent.whatsappNumber || '';
+  document.getElementById('ctInstagram').value = siteContent.instagramHandle || '';
+  const bank = siteContent.bankInfo || {};
+  document.getElementById('ctBankPlataforma').value = bank.plataforma || '';
+  document.getElementById('ctBankTitular').value = bank.titular || '';
+  document.getElementById('ctBankNumero').value = bank.numero || '';
+}
+
+async function saveSiteContent(successMsg){
+  try{
+    const res = await apiFetch('/.netlify/functions/site-content-save', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(siteContent)
+    });
+    if(!res.ok) throw new Error('No se pudo guardar');
+    showToast(successMsg || 'Guardado ✓');
+  } catch(err){
+    showToast(err.message || 'Error al guardar', true);
+  }
+}
+
+document.getElementById('saveTextsBtn').addEventListener('click', ()=>{
+  siteContent.heroLead = document.getElementById('ctHeroLead').value.trim();
+  siteContent.nutritionTitle = document.getElementById('ctNutritionTitle').value.trim();
+  siteContent.macrosText = document.getElementById('ctMacros').value.trim();
+  siteContent.whyBestText = document.getElementById('ctWhyBest').value.trim();
+  siteContent.productsIntro = document.getElementById('ctProductsIntro').value.trim();
+  siteContent.leadNotice = document.getElementById('ctLeadNotice').value.trim();
+  saveSiteContent('Textos guardados ✓');
+});
+
+document.getElementById('saveContactBtn').addEventListener('click', ()=>{
+  siteContent.whatsappNumber = document.getElementById('ctWhatsapp').value.trim();
+  siteContent.instagramHandle = document.getElementById('ctInstagram').value.trim();
+  saveSiteContent('Contacto guardado ✓');
+});
+
+document.getElementById('saveBankBtn').addEventListener('click', ()=>{
+  siteContent.bankInfo = {
+    plataforma: document.getElementById('ctBankPlataforma').value.trim(),
+    titular: document.getElementById('ctBankTitular').value.trim(),
+    numero: document.getElementById('ctBankNumero').value.trim()
+  };
+  saveSiteContent('Datos bancarios guardados ✓');
+});
+
+// ---- FAQ ----
+function renderFaqAdminList(){
+  const el = document.getElementById('faqAdminList');
+  const faq = siteContent.faq || [];
+  if(faq.length === 0){
+    el.innerHTML = '<div class="empty-state">Todavía no hay preguntas cargadas.</div>';
+    return;
+  }
+  el.innerHTML = faq.map((item, i) => `
+    <div class="item-card">
+      <div class="info">
+        <div class="name">${item.q}</div>
+        <div class="meta">${item.a}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-edit" data-i="${i}">Editar</button>
+        <button class="btn-delete" data-i="${i}">Eliminar</button>
+      </div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.btn-edit').forEach(b=>b.addEventListener('click', ()=>openFaqModal(parseInt(b.dataset.i))));
+  el.querySelectorAll('.btn-delete').forEach(b=>b.addEventListener('click', ()=>deleteFaq(parseInt(b.dataset.i))));
+}
+
+function openFaqModal(index){
+  const isEdit = index !== null && index !== undefined;
+  document.getElementById('faqModalTitle').textContent = isEdit ? 'Editar pregunta' : 'Agregar pregunta';
+  document.getElementById('faqIndex').value = isEdit ? index : '';
+  const item = isEdit ? siteContent.faq[index] : null;
+  document.getElementById('faqQuestion').value = item ? item.q : '';
+  document.getElementById('faqAnswer').value = item ? item.a : '';
+  document.getElementById('faqModal').classList.add('open');
+}
+
+document.getElementById('addFaqBtn').addEventListener('click', ()=>openFaqModal(null));
+document.getElementById('cancelFaqBtn').addEventListener('click', ()=>{
+  document.getElementById('faqModal').classList.remove('open');
+});
+
+document.getElementById('saveFaqBtn').addEventListener('click', async ()=>{
+  const q = document.getElementById('faqQuestion').value.trim();
+  const a = document.getElementById('faqAnswer').value.trim();
+  if(!q || !a){ showToast('Completá la pregunta y la respuesta', true); return; }
+  const idxStr = document.getElementById('faqIndex').value;
+  if(!siteContent.faq) siteContent.faq = [];
+  if(idxStr !== ''){
+    siteContent.faq[parseInt(idxStr)] = { q, a };
+  } else {
+    siteContent.faq.push({ q, a });
+  }
+  await saveSiteContent('Pregunta guardada ✓');
+  document.getElementById('faqModal').classList.remove('open');
+  renderFaqAdminList();
+});
+
+async function deleteFaq(index){
+  if(!confirm('¿Eliminar esta pregunta?')) return;
+  siteContent.faq.splice(index, 1);
+  await saveSiteContent('Pregunta eliminada');
+  renderFaqAdminList();
+}
+
+// ---- ZONAS DE ENVÍO ----
+function renderZoneAdminList(){
+  const el = document.getElementById('zoneAdminList');
+  const zones = siteContent.shippingZones || [];
+  if(zones.length === 0){
+    el.innerHTML = '<div class="empty-state">Todavía no hay zonas cargadas.</div>';
+    return;
+  }
+  el.innerHTML = zones.map((z, i) => `
+    <div class="item-card">
+      <div class="info">
+        <div class="name">${z.label} — $U ${z.cost} (gratis desde $U ${z.freeFrom})</div>
+        <div class="meta">${(z.neighborhoods||[]).join(', ')}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-edit" data-i="${i}">Editar</button>
+        <button class="btn-delete" data-i="${i}">Eliminar</button>
+      </div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.btn-edit').forEach(b=>b.addEventListener('click', ()=>openZoneModal(parseInt(b.dataset.i))));
+  el.querySelectorAll('.btn-delete').forEach(b=>b.addEventListener('click', ()=>deleteZone(parseInt(b.dataset.i))));
+}
+
+function openZoneModal(index){
+  const isEdit = index !== null && index !== undefined;
+  document.getElementById('zoneModalTitle').textContent = isEdit ? 'Editar zona' : 'Agregar zona';
+  document.getElementById('zoneOriginalKey').value = isEdit ? index : '';
+  const z = isEdit ? siteContent.shippingZones[index] : null;
+  document.getElementById('zoneLabel').value = z ? z.label : '';
+  document.getElementById('zoneCost').value = z ? z.cost : '';
+  document.getElementById('zoneFreeFrom').value = z ? z.freeFrom : '';
+  document.getElementById('zoneNeighborhoods').value = z ? (z.neighborhoods||[]).join(', ') : '';
+  document.getElementById('zoneModal').classList.add('open');
+}
+
+document.getElementById('addZoneBtn').addEventListener('click', ()=>openZoneModal(null));
+document.getElementById('cancelZoneBtn').addEventListener('click', ()=>{
+  document.getElementById('zoneModal').classList.remove('open');
+});
+
+function slugifyZone(text){
+  return text.toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'zona';
+}
+
+document.getElementById('saveZoneBtn').addEventListener('click', async ()=>{
+  const label = document.getElementById('zoneLabel').value.trim();
+  const cost = parseFloat(document.getElementById('zoneCost').value);
+  const freeFrom = parseFloat(document.getElementById('zoneFreeFrom').value);
+  const neighborhoods = document.getElementById('zoneNeighborhoods').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!label || isNaN(cost) || isNaN(freeFrom) || neighborhoods.length===0){
+    showToast('Completá todos los campos', true);
+    return;
+  }
+  const idxStr = document.getElementById('zoneOriginalKey').value;
+  if(!siteContent.shippingZones) siteContent.shippingZones = [];
+  const existing = idxStr !== '' ? siteContent.shippingZones[parseInt(idxStr)] : null;
+  const key = existing ? existing.key : slugifyZone(label) + '-' + Date.now().toString(36);
+  const newZone = { key, label, cost, freeFrom, neighborhoods };
+  if(idxStr !== ''){
+    siteContent.shippingZones[parseInt(idxStr)] = newZone;
+  } else {
+    siteContent.shippingZones.push(newZone);
+  }
+  await saveSiteContent('Zona guardada ✓');
+  document.getElementById('zoneModal').classList.remove('open');
+  renderZoneAdminList();
+});
+
+async function deleteZone(index){
+  if(!confirm('¿Eliminar esta zona?')) return;
+  siteContent.shippingZones.splice(index, 1);
+  await saveSiteContent('Zona eliminada');
+  renderZoneAdminList();
 }
 
 function renderProductList(){
